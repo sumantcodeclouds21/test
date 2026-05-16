@@ -59,10 +59,12 @@ The app will automatically create and use these project files:
 2. Import the repository into Vercel.
 3. Deploy normally using [api/index.js](/Users/codeclouds-sumant/Desktop/learning/api/index.js:1) and [vercel.json](/Users/codeclouds-sumant/Desktop/learning/vercel.json:1).
 
-Important: Vercel serverless file writes are not reliable permanent storage. The CSV approach is best for local use, demos, or temporary data, not production persistence.
+On Vercel, the app now copies the bundled CSV files into `/tmp` at runtime before reading and writing.
+
+Important: this only avoids the read-only `/var/task` error. Vercel serverless file writes are still temporary, so CSV is best for demos or short-lived testing, not permanent production data.
 
 ## Notes
 
 - Marks percentage is calculated from total obtained marks divided by total max marks.
 - CSV files are created automatically when the app starts using the service layer.
-- On Vercel, CSV changes may be lost because the filesystem is ephemeral.
+- On Vercel, CSV changes are written to `/tmp` and may be lost between invocations or redeployments.

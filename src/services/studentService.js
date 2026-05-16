@@ -1,9 +1,15 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const dataDir = path.join(__dirname, "..", "..", "data");
+const sourceDataDir = path.join(process.cwd(), "data");
+const runtimeDataDir = process.env.VERCEL
+  ? path.join("/tmp", "student-management-system", "data")
+  : sourceDataDir;
+const dataDir = runtimeDataDir;
 const studentsFile = path.join(dataDir, "students.csv");
 const marksFile = path.join(dataDir, "student_marks.csv");
+const sourceStudentsFile = path.join(sourceDataDir, "students.csv");
+const sourceMarksFile = path.join(sourceDataDir, "student_marks.csv");
 
 const studentsHeader = "id,student_name,father_name,mother_name,address";
 const marksHeader = "id,student_id,subject_name,marks_obtained,max_marks";
@@ -49,8 +55,29 @@ async function ensureFile(filePath, header) {
   }
 }
 
+async function seedFileIfNeeded(sourceFilePath, targetFilePath, header) {
+  try {
+    await fs.access(targetFilePath);
+    return;
+  } catch (error) {
+    try {
+      const sourceContent = await fs.readFile(sourceFilePath, "utf8");
+      await fs.writeFile(targetFilePath, sourceContent, "utf8");
+    } catch (sourceError) {
+      await fs.writeFile(targetFilePath, `${header}\n`, "utf8");
+    }
+  }
+}
+
 async function ensureDataFiles() {
   await fs.mkdir(dataDir, { recursive: true });
+
+  if (process.env.VERCEL) {
+    await seedFileIfNeeded(sourceStudentsFile, studentsFile, studentsHeader);
+    await seedFileIfNeeded(sourceMarksFile, marksFile, marksHeader);
+    return;
+  }
+
   await ensureFile(studentsFile, studentsHeader);
   await ensureFile(marksFile, marksHeader);
 }

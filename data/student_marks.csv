@@ -1,3 +1,4 @@
 id,student_id,subject_name,marks_obtained,max_marks
 "1","2","English","80","100"
 "2","1","English","90","100"
+"3","2","Hindi","70","100"
